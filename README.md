@@ -21,4 +21,4 @@ Simple and fun toy to mess around with colleagues.
 
 * The code does *not* set itself up to run at Startup. Too evil.
 * The client exits if no connection can be established.
-* Clients start pinning the volume if the server changes their master volume after clients connect.
+* Clients start pinning the volume after it connects.
