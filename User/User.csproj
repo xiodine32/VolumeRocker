@@ -46,6 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Admin\Settings.cs">
+      <Link>Settings.cs</Link>
+    </Compile>
     <Compile Include="..\Admin\VolumeWatcher.cs">
       <Link>VolumeWatcher.cs</Link>
     </Compile>

@@ -18,16 +18,22 @@ namespace Library
                 deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
 
                 Guid IID_IAudioEndpointVolume = typeof(IAudioEndpointVolume).GUID;
-                object o;
-                speakers.Activate(ref IID_IAudioEndpointVolume, 0, IntPtr.Zero, out o);
+                speakers.Activate(ref IID_IAudioEndpointVolume, 0, IntPtr.Zero, out object o);
                 IAudioEndpointVolume masterVol = (IAudioEndpointVolume)o;
 
                 return masterVol;
             }
             finally
             {
-                if (speakers != null) Marshal.ReleaseComObject(speakers);
-                if (deviceEnumerator != null) Marshal.ReleaseComObject(deviceEnumerator);
+                if (speakers != null)
+                {
+                    Marshal.ReleaseComObject(speakers);
+                }
+
+                if (deviceEnumerator != null)
+                {
+                    Marshal.ReleaseComObject(deviceEnumerator);
+                }
             }
         }
 
@@ -43,16 +49,19 @@ namespace Library
             {
                 masterVol = GetMasterVolumeObject();
                 if (masterVol == null)
+                {
                     return -1;
+                }
 
-                float volumeLevel;
-                masterVol.GetMasterVolumeLevelScalar(out volumeLevel);
+                masterVol.GetMasterVolumeLevelScalar(out float volumeLevel);
                 return volumeLevel * 100;
             }
             finally
             {
                 if (masterVol != null)
+                {
                     Marshal.ReleaseComObject(masterVol);
+                }
             }
         }
 
@@ -68,14 +77,18 @@ namespace Library
             {
                 masterVol = GetMasterVolumeObject();
                 if (masterVol == null)
+                {
                     return;
+                }
 
                 masterVol.SetMasterVolumeLevelScalar(newLevel / 100, Guid.Empty);
             }
             finally
             {
                 if (masterVol != null)
+                {
                     Marshal.ReleaseComObject(masterVol);
+                }
             }
         }
         public void Watch()
@@ -83,7 +96,7 @@ namespace Library
             while (true)
             {
                 Thread.Sleep(100);
-                var now = GetMasterVolume();
+                float now = GetMasterVolume();
                 if (now == -1)
                 {
                     Console.WriteLine("master volume not found");
@@ -241,7 +254,7 @@ namespace Library
             /// <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
             [PreserveSig]
             int GetChannelCount(
-                [Out] [MarshalAs(UnmanagedType.U4)] out UInt32 channelCount);
+                [Out] [MarshalAs(UnmanagedType.U4)] out uint channelCount);
 
             /// <summary>
             /// Sets the master volume level of the audio stream, in decibels.
@@ -292,7 +305,7 @@ namespace Library
             /// <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
             [PreserveSig]
             int SetChannelVolumeLevel(
-                [In] [MarshalAs(UnmanagedType.U4)] UInt32 channelNumber,
+                [In] [MarshalAs(UnmanagedType.U4)] uint channelNumber,
                 [In] [MarshalAs(UnmanagedType.R4)] float level,
                 [In] [MarshalAs(UnmanagedType.LPStruct)] Guid eventContext);
 
@@ -305,7 +318,7 @@ namespace Library
             /// <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
             [PreserveSig]
             int SetChannelVolumeLevelScalar(
-                [In] [MarshalAs(UnmanagedType.U4)] UInt32 channelNumber,
+                [In] [MarshalAs(UnmanagedType.U4)] uint channelNumber,
                 [In] [MarshalAs(UnmanagedType.R4)] float level,
                 [In] [MarshalAs(UnmanagedType.LPStruct)] Guid eventContext);
 
@@ -317,7 +330,7 @@ namespace Library
             /// <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
             [PreserveSig]
             int GetChannelVolumeLevel(
-                [In] [MarshalAs(UnmanagedType.U4)] UInt32 channelNumber,
+                [In] [MarshalAs(UnmanagedType.U4)] uint channelNumber,
                 [Out] [MarshalAs(UnmanagedType.R4)] out float level);
 
             /// <summary>
@@ -328,7 +341,7 @@ namespace Library
             /// <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
             [PreserveSig]
             int GetChannelVolumeLevelScalar(
-                [In] [MarshalAs(UnmanagedType.U4)] UInt32 channelNumber,
+                [In] [MarshalAs(UnmanagedType.U4)] uint channelNumber,
                 [Out] [MarshalAs(UnmanagedType.R4)] out float level);
 
             /// <summary>
@@ -339,7 +352,7 @@ namespace Library
             /// <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
             [PreserveSig]
             int SetMute(
-                [In] [MarshalAs(UnmanagedType.Bool)] Boolean isMuted,
+                [In] [MarshalAs(UnmanagedType.Bool)] bool isMuted,
                 [In] [MarshalAs(UnmanagedType.LPStruct)] Guid eventContext);
 
             /// <summary>
@@ -349,7 +362,7 @@ namespace Library
             /// <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
             [PreserveSig]
             int GetMute(
-                [Out] [MarshalAs(UnmanagedType.Bool)] out Boolean isMuted);
+                [Out] [MarshalAs(UnmanagedType.Bool)] out bool isMuted);
 
             /// <summary>
             /// Gets information about the current step in the volume range.
@@ -359,8 +372,8 @@ namespace Library
             /// <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
             [PreserveSig]
             int GetVolumeStepInfo(
-                [Out] [MarshalAs(UnmanagedType.U4)] out UInt32 step,
-                [Out] [MarshalAs(UnmanagedType.U4)] out UInt32 stepCount);
+                [Out] [MarshalAs(UnmanagedType.U4)] out uint step,
+                [Out] [MarshalAs(UnmanagedType.U4)] out uint stepCount);
 
             /// <summary>
             /// Increases the volume level by one step.
@@ -387,7 +400,7 @@ namespace Library
             /// <returns>An HRESULT code indicating whether the operation passed of failed.</returns>
             [PreserveSig]
             int QueryHardwareSupport(
-                [Out] [MarshalAs(UnmanagedType.U4)] out UInt32 hardwareSupportMask);
+                [Out] [MarshalAs(UnmanagedType.U4)] out uint hardwareSupportMask);
 
             /// <summary>
             /// Gets the volume range of the audio stream, in decibels.

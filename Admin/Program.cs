@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Admin
 {
-    class Program
+    internal class Program
     {
         private static readonly object _lock = new object();
         private static byte _volume = 100;
@@ -27,41 +27,50 @@ namespace Admin
                 }
             }
         }
-        static void ClientThread(TcpClient client)
+
+        private static void ClientThread(TcpClient client)
         {
             byte currentVolume = 0;
-            var stream = client.GetStream();
+            NetworkStream stream = client.GetStream();
             while (true)
             {
-                try { 
-                Thread.Sleep(100);
-                var volume = Volume;
-                if (volume == currentVolume) continue;
-                currentVolume = volume;
-                Console.WriteLine("* " + ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString() + " sending: " + currentVolume);
-                stream.WriteByte(currentVolume);
-                } catch (Exception)
+                try
+                {
+                    Thread.Sleep(100);
+                    byte volume = Volume;
+                    if (volume == currentVolume)
+                    {
+                        continue;
+                    }
+
+                    currentVolume = volume;
+                    Console.WriteLine("* " + ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString() + " sending: " + currentVolume);
+                    stream.WriteByte(currentVolume);
+                }
+                catch (Exception)
                 {
                     Console.WriteLine("* " + ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString() + " client closed!");
                     return;
                 }
             }
         }
-        static void Main()
+
+        private static void Main()
         {
             Console.WriteLine("Starting server!");
-            var listener = new TcpListener(IPAddress.Any, 8123);
+            TcpListener listener = new TcpListener(IPAddress.Any, Settings.PORT);
             Console.WriteLine("Server ready!");
             listener.Start();
-            new Thread(() => {
+            new Thread(() =>
+            {
                 Thread.CurrentThread.IsBackground = true;
-                var volumeWatcher = new VolumeWatcher();
+                VolumeWatcher volumeWatcher = new VolumeWatcher();
                 volumeWatcher.Change += (a) => Volume = a;
                 volumeWatcher.Watch();
             }).Start();
             while (true)
             {
-                var client = listener.AcceptTcpClient();
+                TcpClient client = listener.AcceptTcpClient();
                 Console.WriteLine("new client! " + ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString());
                 new Thread(() =>
                 {
